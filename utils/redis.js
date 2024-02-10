@@ -1,3 +1,4 @@
+/* eslint-disable */
 const redis = require('redis')
 import { promisify } from 'util'
 
