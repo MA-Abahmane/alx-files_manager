@@ -1,4 +1,4 @@
-# Node.js Cheat Sheet
+<h1 style='color:royalblue;'>Node.js Cheat Sheet</h1>
 
 ## Getting Started with Node.js
 
@@ -152,3 +152,69 @@ npm install bull
 ### Example Usage
 
 ```javascript
+const Queue = require('bull');
+
+const queue = new Queue('myQueue');
+
+queue.add({ foo: 'bar' });
+```
+
+## Image Thumbnail
+
+Creating image thumbnails is a common task in web development, often performed using image processing libraries like Sharp.
+
+### Example using Sharp
+
+```bash
+npm install sharp
+```
+
+```javascript
+const sharp = require('sharp');
+
+sharp('input.jpg')
+  .resize(200, 200)
+  .toFile('output.jpg', (err, info) => {
+    if (err) throw err;
+    console.log(info);
+  });
+```
+
+## Mime-Types
+
+MIME types are used to identify the types of content that a file contains.
+
+### Example with Node.js
+
+```javascript
+const mime = require('mime-types');
+
+const type = mime.lookup('file.txt'); // returns 'text/plain'
+```
+
+## Redis
+
+Redis is an open-source, in-memory data structure store used as a database, cache, and message broker.
+
+### Installation
+
+Install Redis from [redis.io](https://redis.io/download).
+
+### Example Usage with Node.js
+
+```javascript
+const redis = require('redis');
+const client = redis.createClient();
+
+client.set('key', 'value', (err, reply) => {
+  console.log(reply); // Output: OK
+});
+
+client.get('key', (err, value) => {
+  console.log(value); // Output: value
+});
+
+client.del('key', (err, value) => {
+  console.log(value); // Output: result
+});
+```
