@@ -36,7 +36,7 @@ const FilesController = {
 
             let parentFile
             if (parentId !== 0) {
-                parentFile = await dbClient.filesCollection.findOne({ _id: parentId })
+                parentFile = await dbClient.filesColl.findOne({ _id: parentId })
                 if (!parentFile) {
                     return response.status(400).json({ error: 'Parent not found' })
                 }
@@ -54,7 +54,7 @@ const FilesController = {
             }
 
             if (type === 'folder') {
-                const result = await dbClient.filesCollection.insertOne(fileDocument)
+                const result = await dbClient.filesColl.insertOne(fileDocument)
                 return response.status(201).json(result.ops[0])
             } else {
                 const fileData = Buffer.from(data, 'base64')
@@ -71,12 +71,67 @@ const FilesController = {
                     fileDocument.path = fileId
                 }
 
-                const result = await dbClient.filesCollection.insertOne(fileDocument)
+                const result = await dbClient.filesColl.insertOne(fileDocument)
                 return response.status(201).json(result.ops[0])
             }
         } catch (error) {
             console.error('Error uploading file:', error)
             return response.status(500).json({ error: 'Internal Server Error' })
+        }
+    },
+
+    async getShow(request, response) {
+        try {
+            const token = request.headers['x-token'];
+            if (!token)
+                return response.status(401).json({ error: 'Unauthorized' });
+
+            const key = `auth_${token}`;
+            const userId = await redisClient.get(key);
+
+            if (!userId)
+                return response.status(401).json({ error: 'Unauthorized' });
+
+            const fileId = request.params.id;
+
+            const file = await dbClient.filesColl.findOne({ _id: fileId, userId });
+
+            if (!file)
+                return response.status(404).json({ error: 'Not found' });
+
+            return response.json(file);
+        } catch (error) {
+            console.error('Error getting file:', error);
+            return response.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+    async getIndex(request, response) {
+        try {
+            const token = request.headers['x-token'];
+            if (!token)
+                return response.status(401).json({ error: 'Unauthorized' });
+
+            const key = `auth_${token}`;
+            const userId = await redisClient.get(key);
+
+            if (!userId)
+                return response.status(401).json({ error: 'Unauthorized' });
+
+            const { parentId = '0', page = 0 } = request.query;
+            const limit = 20;
+            const skip = page * limit;
+
+            const files = await dbClient.filesColl
+                .find({ userId, parentId })
+                .skip(skip)
+                .limit(limit)
+                .toArray();
+
+            return response.json(files);
+        } catch (error) {
+            console.error('Error getting files:', error);
+            return response.status(500).json({ error: 'Internal Server Error' });
         }
     }
 
