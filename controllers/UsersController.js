@@ -31,7 +31,7 @@ const UsersController = {
         try{
             result = await dbClient.usersColl.insertOne(newUser)
         } catch (error) {
-            return response.status(500).json({ error: 'Failed to create user' })
+            return response.status(400).json({ error: 'Failed to create user' })
         }
 
         return response.status(201).json({ id: result.insertedId, email, })
