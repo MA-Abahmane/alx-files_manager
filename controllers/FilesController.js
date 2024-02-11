@@ -10,36 +10,33 @@ const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager'
 
 
 const FilesController = {
+
     async postUpload(request, response) {
         try {
             const token = request.headers['x-token']
-            if (!token) {
+            if (!token)
                 return response.status(401).json({ error: 'Unauthorized' })
-            }
 
             const key = `auth_${token}`
             const userId = await redisClient.get(key)
 
-            if (!userId) {
+            if (!userId)
                 return response.status(401).json({ error: 'Unauthorized' })
-            }
 
             const { name, type, parentId = 0, isPublic = false, data } = request.body
 
-            if (!name) { 
+            if (!name)
                 return response.status(400).json({ error: 'Missing name' })
-            }
 
-            if (!type || !['folder', 'file', 'image'].includes(type)) {
+            if (!type || !['folder', 'file', 'image'].includes(type))
                 return response.status(400).json({ error: 'Missing type or invalid type' })
-            }
 
-            if (type !== 'folder' && !data) {
+            if (type !== 'folder' && !data)
                 return response.status(400).json({ error: 'Missing data' })
-            }
 
+            let parentFile
             if (parentId !== 0) {
-                const parentFile = await dbClient.filesCollection.findOne({ _id: parentId })
+                parentFile = await dbClient.filesCollection.findOne({ _id: parentId })
                 if (!parentFile) {
                     return response.status(400).json({ error: 'Parent not found' })
                 }
@@ -68,6 +65,12 @@ const FilesController = {
 
                 fileDocument.localPath = filePath
 
+                if (parentFile) {
+                    fileDocument.path = `${parentFile.path}/${fileId}`
+                } else {
+                    fileDocument.path = fileId
+                }
+
                 const result = await dbClient.filesCollection.insertOne(fileDocument)
                 return response.status(201).json(result.ops[0])
             }
@@ -76,6 +79,7 @@ const FilesController = {
             return response.status(500).json({ error: 'Internal Server Error' })
         }
     }
+
 }
 
 module.exports = FilesController
