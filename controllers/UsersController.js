@@ -28,15 +28,13 @@ const UsersController = {
             password: hashedPw,
         }
 
-        var rslt
         try{
-            rslt = await dbClient.usersCollection.insertOne(newUser)
+            result = await dbClient.usersCollection.insertOne(newUser)
         } catch (error) {
             return response.status(400).json({ error: 'Failed to create user' })
         }
-            
 
-        return response.status(201).json({ id: rslt.insertedId, email })
+        return response.status(201).json({ id: result.insertedId, email })
     }
 }
 
