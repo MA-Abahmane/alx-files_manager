@@ -161,6 +161,11 @@ const FilesController = {
     async putUnpublish(request, response) {
 
         return response.status(401).json({ error: 'Unauthorized' })
+    },
+
+    async getFile(request, response) {
+
+        return response.status(404).json({ error: 'Not found' })
     }
 
 }
