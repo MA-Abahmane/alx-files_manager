@@ -44,6 +44,14 @@ router.get('/files', (req, res) => {
     FilesController.getIndex(req, res)
 })
 
+router.put('/files/:id/publish', (req, res) => {
+    FilesController.putPublish(req, res)
+})
+
+router.put('/files/:id/publish', (req, res) => {
+    FilesController.putUnpublish(req, res)
+})
+
 
 
 module.exports = router

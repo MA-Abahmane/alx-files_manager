@@ -82,59 +82,88 @@ const FilesController = {
 
     async getShow(request, response) {
         try {
-            const token = request.headers['x-token'];
+            const token = request.headers['x-token']
             if (!token)
-                return response.status(401).json({ error: 'Unauthorized' });
+                return response.status(401).json({ error: 'Unauthorized' })
 
-            const key = `auth_${token}`;
-            const userId = await redisClient.get(key);
+            const key = `auth_${token}`
+            const userId = await redisClient.get(key)
 
             if (!userId)
-                return response.status(401).json({ error: 'Unauthorized' });
+                return response.status(401).json({ error: 'Unauthorized' })
 
-            const fileId = request.params.id;
+            const fileId = request.params.id
 
-            const file = await dbClient.filesColl.findOne({ _id: fileId, userId });
+            const file = await dbClient.filesColl.findOne({ _id: fileId, userId })
 
             if (!file)
-                return response.status(404).json({ error: 'Not found' });
+                return response.status(404).json({ error: 'Not found' })
 
-            return response.json(file);
+            return response.json(file)
         } catch (error) {
-            console.error('Error getting file:', error);
-            return response.status(500).json({ error: 'Internal Server Error' });
+            console.error('Error getting file:', error)
+            return response.status(500).json({ error: 'Internal Server Error' })
         }
     },
 
     async getIndex(request, response) {
         try {
-            const token = request.headers['x-token'];
+            const token = request.headers['x-token']
             if (!token)
-                return response.status(401).json({ error: 'Unauthorized' });
+                return response.status(401).json({ error: 'Unauthorized' })
 
-            const key = `auth_${token}`;
-            const userId = await redisClient.get(key);
+            const key = `auth_${token}`
+            const userId = await redisClient.get(key)
 
             if (!userId)
-                return response.status(401).json({ error: 'Unauthorized' });
+                return response.status(401).json({ error: 'Unauthorized' })
 
-            const { parentId = '0', page = 0 } = request.query;
-            const limit = 20;
-            const skip = page * limit;
+            const { parentId = '0', page = 0 } = request.query
+            const limit = 20
+            const skip = page * limit
 
             const files = await dbClient.filesColl
                 .find({ userId, parentId })
                 .skip(skip)
                 .limit(limit)
-                .toArray();
+                .toArray()
 
-            return response.json(files);
+            return response.json(files)
         } catch (error) {
-            console.error('Error getting files:', error);
-            return response.status(500).json({ error: 'Internal Server Error' });
+            console.error('Error getting files:', error)
+            return response.status(500).json({ error: 'Internal Server Error' })
         }
+    },
+
+    async putPublish(request, response) {
+        const token = request.headers['x-token']
+        if (!token)
+            return response.status(401).json({ error: 'Unauthorized' })
+
+        const key = `auth_${token}`
+        const userId = await redisClient.get(key)
+
+        if (!userId)
+            return response.status(401).json({ error: 'Unauthorized' })
+
+        const fileId = request.params.id
+
+        const file = await dbClient.filesColl.findOne({ _id: fileId, userId })
+
+        if (!file)
+            return response.status(404).json({ error: 'Not found' })
+
+        await dbClient.filesColl.updateOne({ _id: fileId }, { $set: { isPublic: true } })
+
+        return response.json(file)
+    },
+
+    async putUnpublish(request, response) {
+
+        return response.status(401).json({ error: 'Unauthorized' })
     }
 
 }
+
 
 module.exports = FilesController
