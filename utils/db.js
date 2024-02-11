@@ -35,6 +35,14 @@ class DBClient {
         return db.collection('files').countDocuments()
     }
 
+    async createUser(newUser) {
+        // save user to database
+        const db = this.client.db();
+        const usersCol = db.collection('users');
+        const result = await usersCol.insertOne(newUser);
+        return result.ops[0];
+    }
+
 }
 
 const dbClient =  new DBClient()
