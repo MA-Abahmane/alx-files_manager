@@ -14,11 +14,15 @@ class DBClient {
         this.client = new MongoClient(uri)
         this.client.connect((err) => {
             if (err)
+            {
                 console.log('Mongo client connect Error:', err)
+            } else {
+                this.db = this.client.db()
+                this.usersCollection = this.db.collection('users')
+                this.filesCollection = this.db.collection('files')
+            }
+
         })
-        const db = this.client.db()
-        this.usersCollection = db.collection('users')
-        this.filesCollection = db.collection('files')
     }
 
     isAlive() {
