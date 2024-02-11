@@ -33,7 +33,7 @@ class DBClient {
 
     async nbFiles() {
         // returns the number of documents in the collection files
-        return db.collection('files').countDocuments()
+        return this.db.collection('files').countDocuments()
     }
 
 }
