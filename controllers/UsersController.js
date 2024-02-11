@@ -2,6 +2,7 @@
 const sha1 = require('sha1')
 
 const dbClient = require('../utils/db')
+const redisClient = require('../utils/redis')
 
 
 const UsersController = {
@@ -35,6 +36,26 @@ const UsersController = {
         }
 
         return response.status(201).json({ id: result.insertedId, email, })
+    },
+
+    async getMe(request, response) {
+        const token = request.headers['x-token']
+        if (!token)
+            return response.status(401).json({ error: 'Unauthorized' })
+
+        const key = `auth_${token}`
+        const userId = await redisClient.get(key)
+
+        if (!userId)
+            return response.status(401).json({ error: 'Unauthorized' })
+
+        const user = await dbClient.usersColl.findOne({ _id: userId })
+
+        if (!user) {
+            return response.status(401).json({ error: 'Unauthorized' })
+        }
+
+        return response.status(200).json({ id: user._id, email: user.email })
     }
 }
 
