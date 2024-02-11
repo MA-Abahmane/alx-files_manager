@@ -18,8 +18,8 @@ class DBClient {
                 console.log('Mongo client connect Error:', err)
             } else {
                 this.db = this.client.db()
-                this.usersCollection = this.db.collection('users')
-                this.filesCollection = this.db.collection('files')
+                this.usersColl = this.db.collection('users')
+                this.filesColl = this.db.collection('files')
             }
 
         })
@@ -32,14 +32,12 @@ class DBClient {
 
     async nbUsers() {
         //  returns the number of documents in the collection users
-        const db = this.client.db()
-        return db.collection('users').countDocuments()
+        return this.usersColl.countDocuments()
     }
 
     async nbFiles() {
         // returns the number of documents in the collection files
-        const db = this.client.db()
-        return db.collection('files').countDocuments()
+        return this.filesColl.countDocuments()
     }
 
 }

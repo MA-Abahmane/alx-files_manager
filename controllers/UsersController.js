@@ -5,7 +5,7 @@ const dbClient = require('../utils/db')
 
 
 const UsersController = {
-    
+
     async postNew(request, response) {
         const { email, password } = request.body
 
@@ -16,7 +16,7 @@ const UsersController = {
             return response.status(400).json({ error: 'Missing password' })
 
         // check is user with email exists
-        const userSearch = await dbClient.usersCollection.findOne({ email })
+        const userSearch = await dbClient.usersColl.findOne({ email })
         if (userSearch) 
             return response.status(400).json({ error: 'Already exist' })
 
@@ -29,12 +29,12 @@ const UsersController = {
         }
 
         try{
-            result = await dbClient.usersCollection.insertOne(newUser)
+            result = await dbClient.usersColl.insertOne(newUser)
         } catch (error) {
-            return response.status(400).json({ error: 'Failed to create user' })
+            return response.status(500).json({ error: 'Failed to create user' })
         }
 
-        return response.status(201).json({ id: result.insertedId, email })
+        return response.status(201).json({ id: result.insertedId, email, })
     }
 }
 
